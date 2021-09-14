@@ -1,3 +1,9 @@
+# running svelte project locally
+- `git clone https://github.com/Philip-Mann/svelte-frontend-coding-test.git`
+- `cd svelte-frontend-coding-test`
+- `npm install`
+- `npm run dev -- --open`
+
 # create-svelte
 
 Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte);
