@@ -1,8 +1,7 @@
 <script>
     import moment from 'moment';
-    const date = `${moment().format('ddd, D MMM YYYY')}`
-
-    const rn = moment();
+    // import DashboardMain from './dashboardMain.svelte';
+    let dateInReference = moment().format('ddd, D MMM YYYY');
     
     const DEMO_EVENTS = [
         { value: 100, time: moment() },
@@ -15,39 +14,62 @@
         { value: 103, time: moment().subtract(2, 'day') },
         { value: 98, time: moment().subtract(3, 'day') }
     ];
-        
-        const totalBloodSugarEvents = () => {
-            const eventsToday = DEMO_EVENTS.map(data => {
-                return `${data.value}`
-            });
-            return eventsToday;
+    
+    let averageBloodSugarInReference = 0;
+    let totalBloodSugarEventsInReference = 0;
+    let percentageOfDayInReference = 0;
+    
+    const dailyValues = (arr) => {
+        const filteredEventsByDay = arr.filter(eventsForTheDay => 
+        eventsForTheDay.time.format('ddd, D MMM YYYY') === dateInReference
+        );
+        console.log('FILTERED EVENTS', filteredEventsByDay);
+        let sum = 0;
+        for(let i = 0; i < filteredEventsByDay.length; i++) {
+            sum += filteredEventsByDay[i].value;
         }
-        totalBloodSugarEvents();
+        let counter = 0;
+        for(let i = 0; i < filteredEventsByDay.length; i++) {
+            if (filteredEventsByDay[i].value >= 70 && filteredEventsByDay[i].value <= 180 ) {
+                counter++;
+            }
+        }
+        percentageOfDayInReference = counter / filteredEventsByDay.length * 100;
+        const dailyAverage = sum / filteredEventsByDay.length;
+        averageBloodSugarInReference = dailyAverage;
+        totalBloodSugarEventsInReference = filteredEventsByDay.length;
+    }
+    dailyValues(DEMO_EVENTS);
+ 
+    const backButton = () => {
+        const previousDay = moment(dateInReference).subtract(1, 'day').format('ddd, D MMM YYYY');
+        dateInReference = previousDay;
+        dailyValues(DEMO_EVENTS);
+    }
+
+    const forwardButton = () => {
+        const nextDay = moment(dateInReference).add(1, 'day').format('ddd, D MMM YYYY');
+        dateInReference = nextDay
+        dailyValues(DEMO_EVENTS);
+    }
 
 </script>
 
-
-<!-- TODO: Figure out why eventsToday isnt rendering correctly -->
-
-<ul>
-    <li>
-        {totalBloodSugarEvents()}
-    </li>
-</ul>
 <div class="dashboard-container">
     <div class="dashboard-header">
         <div class="dashboard-date">
-            <h1>{date}</h1>
+            <h1>{dateInReference}</h1>
         </div>
         <div class="dashboard-arrows">
-            <div class="image img1">
-                <img src="./public/images/arrow-sprite.png" alt="dummy" />
-            </div>
-            <div class="image img2">
-                <img src="./public/images/arrow-sprite.png" alt="dummy" />
-            </div>
+            <button on:click={backButton}>
+                Back
+            </button>
+            <button on:click={forwardButton}>
+                Forward
+            </button>
         </div>    
     </div>
+    <!-- <DashboardMain /> -->
     <div class="dashboard-inner">
         <div class="dash">
             <div class="dash-header">
@@ -56,7 +78,7 @@
             </div>
             <div class="dash-main">
                 <div class="main-contents">
-                    <h1>3</h1>
+                    <h1>{totalBloodSugarEventsInReference}</h1>
                     <p>events</p>
                 </div>
             </div>
@@ -70,7 +92,7 @@
                 <p>Average blood sugar</p>
             </div><div class="dash-main">
                 <div class="main-contents">
-                    <h1>123</h1>
+                    <h1>{Math.round(averageBloodSugarInReference)}</h1>
                     <p>mg/dL</p>
                 </div>
             </div>
@@ -85,7 +107,7 @@
             </div>
             <div class="dash-main">
                 <div class="main-contents">
-                    <h1>75</h1>
+                    <h1>{Math.round(percentageOfDayInReference)}</h1>
                     <p>%</p>
                 </div>
             </div>
@@ -100,26 +122,6 @@
 
 
 <style>
-    .dashboard-date {
-        margin: 1rem;
-    }
-    .image {
-        width: 20px;
-        height: 26px;
-        overflow: hidden;
-        margin: 1rem;
-    }
-    .image img {
-        margin-top: -85%;
-        width: 100%;
-        transform: scaleX(-1);
-    }
-    .img2 img {
-        transform: scaleX(1);
-    }
-    .dashboard-container {
-        height: 20rem;
-    }
     .dashboard-header {
         display: flex;
         width: 35%;
@@ -130,7 +132,9 @@
         display: flex;
         justify-content: space-between;
     }
-
+    .dashboard-date {
+        margin: 1rem;
+    }
     .dashboard-inner {
         display: flex;
         justify-content: space-around;
