@@ -1,6 +1,15 @@
 <script>
     import moment from 'moment';
+    moment.suppressDeprecationWarnings = true;
     let date = moment().format('ddd, D MMM YYYY');
+
+    let unitOfBloodTestMeasurements = {
+        events: 'events',
+        milligrams: 'mg/dL',
+        percent: '%'
+    }
+
+    let previousDayString = 'Previous Day - ';
     
     const DEMO_EVENTS = [
         { value: 100, time: moment() },
@@ -27,10 +36,20 @@
             }
         }
         const dailyAverage = sum / filteredEventsByDay.length;
-        return {
-            totalEvents: filteredEventsByDay.length,
-            average: dailyAverage,
-            percentageBetweenRange: counter / filteredEventsByDay.length * 100
+        if( filteredEventsByDay.length === 0 || filteredEventsByDay.length === 1) {
+            previousDayString = '';
+            return {
+                totalEvents: '0',
+                average: '',
+                percentageBetweenRange: ''
+            }
+        } else {
+            previousDayString = 'Previous Day - '
+            return {
+                totalEvents: filteredEventsByDay.length,
+                average: dailyAverage,
+                percentageBetweenRange: counter / filteredEventsByDay.length * 100
+            }
         }
     }
     getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date);
@@ -39,12 +58,14 @@
         const previousDay = moment(date).subtract(1, 'day').format('ddd, D MMM YYYY');
         date = previousDay;
         getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date);
+        console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>. Back');
     }
 
     const forwardButton = () => {
         const nextDay = moment(date).add(1, 'day').format('ddd, D MMM YYYY');
-        date = nextDay
+        date = nextDay;
         getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date);
+        console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>. Forward');
     }
 
 </script>
@@ -72,11 +93,11 @@
             </div>
             <div class="dash-main">
                 <div class="main-contents">
-                    <h1>{getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).totalEvents} events</h1>
+                    <h1>{getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).totalEvents + unitOfBloodTestMeasurements.events}</h1>
                 </div>
             </div>
             <div class="dash-footer">
-                <p>Previous day - {getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).totalEvents}</p>
+                <p>{previousDayString} {getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).totalEvents}</p>
             </div>
         </div>
         <div class="dash">
@@ -85,12 +106,12 @@
                 <p>Average blood sugar</p>
             </div><div class="dash-main">
                 <div class="main-contents">
-                    <h1>{Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).average)} mg/dL</h1>
+                    <h1>{Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).average) + unitOfBloodTestMeasurements.milligrams}</h1>
                     <!-- <p>mg/dL</p> -->
                 </div>
             </div>
             <div class="dash-footer">
-                <p>Previous day - {Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).average)}</p>
+                <p>{previousDayString} {Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).average)}</p>
             </div>
         </div>
         <div class="dash">
@@ -100,12 +121,12 @@
             </div>
             <div class="dash-main">
                 <div class="main-contents">
-                    <h1>{Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).percentageBetweenRange)} %</h1>
+                    <h1>{Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).percentageBetweenRange) + unitOfBloodTestMeasurements.percent}</h1>
                     <!-- <p>%</p> -->
                 </div>
             </div>
             <div class="dash-footer">
-                <p>Previous day - {Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).percentageBetweenRange)}</p>
+                <p>{previousDayString} {Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).percentageBetweenRange)}</p>
             </div>
         </div>
     </div>
@@ -159,6 +180,9 @@
         align-items: center;
         width: 25%;
     }
+    /* .main-contents h1 {
+        display: inline-block;
+    } */
     .dash-footer {
         display: flex;
         justify-content: flex-end;
