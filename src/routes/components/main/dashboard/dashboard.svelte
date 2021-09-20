@@ -1,16 +1,8 @@
 <script>
     import moment from 'moment';
-    moment.suppressDeprecationWarnings = true;
-    let date = moment().format('ddd, D MMM YYYY');
+    moment.suppressDeprecationWarnings = true;  // stops console from reading moment depractaion warning
+    let date = moment().format('ddd, D MMM YYYY');  // starts at todays date
 
-    let unitOfBloodTestMeasurements = {
-        events: 'events',
-        milligrams: 'mg/dL',
-        percent: '%'
-    }
-
-    let previousDayString = 'Previous Day - ';
-    
     const DEMO_EVENTS = [
         { value: 100, time: moment() },
         { value: 155, time: moment() },
@@ -23,28 +15,34 @@
         { value: 98, time: moment().subtract(3, 'day') }
     ];
     
+    // function takes in events and date
     const getBloodSugarValuesFromEventsByDay = (events, date) => {
+        // filters DEMO_EVENTS by date
         const filteredEventsByDay = events.filter(event => event.time.format('ddd, D MMM YYYY') === date);
+        // getting daily average
         let sum = 0;
         for(let i = 0; i < filteredEventsByDay.length; i++) {
             sum += filteredEventsByDay[i].value;
+        } if(sum <= 0) {
+            sum = '';
         }
+        // getting percentage of events between 70 and 180
         let counter = 0;
         for(let i = 0; i < filteredEventsByDay.length; i++) {
             if (filteredEventsByDay[i].value >= 70 && filteredEventsByDay[i].value <= 180 ) {
                 counter++;
             }
         }
+        // if statement in case there are days with no events
         const dailyAverage = sum / filteredEventsByDay.length;
-        if( filteredEventsByDay.length === 0 || filteredEventsByDay.length === 1) {
-            previousDayString = '';
+        if( filteredEventsByDay.length <= 0) {
             return {
-                totalEvents: '0',
+                totalEvents: '',
                 average: '',
                 percentageBetweenRange: ''
             }
         } else {
-            previousDayString = 'Previous Day - '
+            // if there are events
             return {
                 totalEvents: filteredEventsByDay.length,
                 average: dailyAverage,
@@ -54,18 +52,17 @@
     }
     getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date);
  
-    const backButton = () => {
+
+    const togglePreviousDay = () => {
         const previousDay = moment(date).subtract(1, 'day').format('ddd, D MMM YYYY');
         date = previousDay;
         getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date);
-        console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>. Back');
     }
 
-    const forwardButton = () => {
+    const toggleNextDay = () => {
         const nextDay = moment(date).add(1, 'day').format('ddd, D MMM YYYY');
         date = nextDay;
         getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date);
-        console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>. Forward');
     }
 
 </script>
@@ -76,15 +73,14 @@
             <h1>{date}</h1>
         </div>
         <div class="dashboard-arrows">
-            <button on:click={backButton}>
+            <button on:click={togglePreviousDay}>
                 Back
             </button>
-            <button on:click={forwardButton}>
+            <button on:click={toggleNextDay}>
                 Forward
             </button>
         </div>    
     </div>
-    <!-- <DashboardMain /> -->
     <div class="dashboard-inner">
         <div class="dash">
             <div class="dash-header">
@@ -93,11 +89,21 @@
             </div>
             <div class="dash-main">
                 <div class="main-contents">
-                    <h1>{getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).totalEvents + unitOfBloodTestMeasurements.events}</h1>
+                    {#if getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).totalEvents == 0}
+                    <p>Not Enough events</p>
+                    {:else if getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).totalEvents == 1}
+                    <h1>{getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).totalEvents + ' event'}</h1>
+                    {:else}
+                    <h1>{getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).totalEvents + ' events'}</h1>
+                    {/if}
                 </div>
             </div>
             <div class="dash-footer">
-                <p>{previousDayString} {getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).totalEvents}</p>
+                {#if getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).totalEvents == 0}
+                <p>Not enough events</p>
+                {:else}
+                <p>Previous Day: {getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).totalEvents}</p>
+                {/if}
             </div>
         </div>
         <div class="dash">
@@ -106,12 +112,19 @@
                 <p>Average blood sugar</p>
             </div><div class="dash-main">
                 <div class="main-contents">
-                    <h1>{Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).average) + unitOfBloodTestMeasurements.milligrams}</h1>
-                    <!-- <p>mg/dL</p> -->
+                    {#if Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).average) == 0}
+                    <p>Not Enough Events</p>
+                    {:else}
+                    <h1>{Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).average) + ' mg/dL'}</h1>
+                    {/if}
                 </div>
             </div>
             <div class="dash-footer">
-                <p>{previousDayString} {Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).average)}</p>
+                {#if Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).average) == 0}
+                <p>Not enough events</p>
+                {:else}
+                <p>Previous Day: {Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).average)}</p>
+                {/if}
             </div>
         </div>
         <div class="dash">
@@ -121,12 +134,19 @@
             </div>
             <div class="dash-main">
                 <div class="main-contents">
-                    <h1>{Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).percentageBetweenRange) + unitOfBloodTestMeasurements.percent}</h1>
-                    <!-- <p>%</p> -->
+                    {#if Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).percentageBetweenRange) == 0}
+                    <p>Not enough events</p>
+                    {:else}
+                    <h1>{Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).percentageBetweenRange) + ' %'}</h1>
+                    {/if}
                 </div>
             </div>
             <div class="dash-footer">
-                <p>{previousDayString} {Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).percentageBetweenRange)}</p>
+                {#if Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).percentageBetweenRange) == 0}
+                <p>Not enough events</p>
+                {:else}
+                <p>Previous Day: {Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).percentageBetweenRange)}</p>
+                {/if}
             </div>
         </div>
     </div>
@@ -165,7 +185,6 @@
         display: flex;
         align-items: center;
         justify-content: flex-start;
-        
     }
 
     .dash-main {
@@ -180,9 +199,7 @@
         align-items: center;
         width: 25%;
     }
-    /* .main-contents h1 {
-        display: inline-block;
-    } */
+
     .dash-footer {
         display: flex;
         justify-content: flex-end;
