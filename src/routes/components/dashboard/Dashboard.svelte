@@ -75,19 +75,15 @@
         <div class="dashboard-buttons">
             <div class="button">
                 <button on:click={togglePreviousDay}>
-                    Previous Day
+                    Previous
                 </button>
             </div>
             {#if moment().format('ddd, D MMM YYYY') == date}
-            <div class="button">
-                <button on:click={toggleNextDay} disabled>
-                    Next Day
-                </button>
-            </div>
+            <div class="button"></div>
             {:else}
             <div class="button">
                 <button on:click={toggleNextDay}>
-                    Next Day
+                    Next
                 </button>
             </div>
             {/if}
