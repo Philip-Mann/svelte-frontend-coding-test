@@ -1,6 +1,7 @@
 <script>
+    import './dashboard.css';
     import moment from 'moment';
-    moment.suppressDeprecationWarnings = true;  // stops console from reading moment depractaion warning
+    moment.suppressDeprecationWarnings = true;  // stops console from reading moment.js depracation warning
     let date = moment().format('ddd, D MMM YYYY');  // starts at todays date
 
     const DEMO_EVENTS = [
@@ -51,7 +52,6 @@
         }
     }
     getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date);
- 
 
     const togglePreviousDay = () => {
         const previousDay = moment(date).subtract(1, 'day').format('ddd, D MMM YYYY');
@@ -70,27 +70,39 @@
 <div class="dashboard-container">
     <div class="dashboard-header">
         <div class="dashboard-date">
-            <h1>{date}</h1>
+            <h2>{date}</h2>
         </div>
-        <div class="dashboard-arrows">
-            <button on:click={togglePreviousDay}>
-                Back
-            </button>
-            <button on:click={toggleNextDay}>
-                Forward
-            </button>
+        <div class="dashboard-buttons">
+            <div class="button">
+                <button on:click={togglePreviousDay}>
+                    Previous Day
+                </button>
+            </div>
+            {#if moment().format('ddd, D MMM YYYY') == date}
+            <div class="button">
+                <button on:click={toggleNextDay} disabled>
+                    Next Day
+                </button>
+            </div>
+            {:else}
+            <div class="button">
+                <button on:click={toggleNextDay}>
+                    Next Day
+                </button>
+            </div>
+            {/if}
         </div>    
     </div>
-    <div class="dashboard-inner">
+    <div class="dashboard-main">
         <div class="dash">
             <div class="dash-header">
                 <i class="fas fa-tint fa-lg"></i>
                 <p>Total blood sugar events</p>
             </div>
-            <div class="dash-main">
+            <div class="dash-inner">
                 <div class="main-contents">
                     {#if getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).totalEvents == 0}
-                    <p>Not Enough events</p>
+                    <p>No events for the day</p>
                     {:else if getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).totalEvents == 1}
                     <h1>{getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).totalEvents + ' event'}</h1>
                     {:else}
@@ -100,7 +112,7 @@
             </div>
             <div class="dash-footer">
                 {#if getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).totalEvents == 0}
-                <p>Not enough events</p>
+                <p>No events for the day</p>
                 {:else}
                 <p>Previous Day: {getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).totalEvents}</p>
                 {/if}
@@ -113,7 +125,7 @@
             </div><div class="dash-main">
                 <div class="main-contents">
                     {#if Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).average) == 0}
-                    <p>Not Enough Events</p>
+                    <p>No events for the day</p>
                     {:else}
                     <h1>{Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).average) + ' mg/dL'}</h1>
                     {/if}
@@ -121,7 +133,7 @@
             </div>
             <div class="dash-footer">
                 {#if Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).average) == 0}
-                <p>Not enough events</p>
+                <p>No events for the day</p>
                 {:else}
                 <p>Previous Day: {Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).average)}</p>
                 {/if}
@@ -135,7 +147,7 @@
             <div class="dash-main">
                 <div class="main-contents">
                     {#if Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).percentageBetweenRange) == 0}
-                    <p>Not enough events</p>
+                    <p>No events for the day</p>
                     {:else}
                     <h1>{Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, date).percentageBetweenRange) + ' %'}</h1>
                     {/if}
@@ -143,7 +155,7 @@
             </div>
             <div class="dash-footer">
                 {#if Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).percentageBetweenRange) == 0}
-                <p>Not enough events</p>
+                <p>No events for the day</p>
                 {:else}
                 <p>Previous Day: {Math.round(getBloodSugarValuesFromEventsByDay(DEMO_EVENTS, moment(date).subtract(1, 'day').format('ddd, D MMM YYYY')).percentageBetweenRange)}</p>
                 {/if}
@@ -151,58 +163,3 @@
         </div>
     </div>
 </div>
-
-
-
-
-<style>
-    .dashboard-header {
-        display: flex;
-        width: 35%;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .dashboard-arrows {
-        display: flex;
-        justify-content: space-between;
-    }
-    .dashboard-date {
-        margin: 1rem;
-    }
-    .dashboard-inner {
-        display: flex;
-        justify-content: space-around;
-    }
-
-    .dash {
-        width: 30%;
-        box-shadow: 0 3px 10px rgb(0 0 0 / 0.4);
-        border-radius: 10px;
-    }
-
-    .dash-header {
-        margin: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-    }
-
-    .dash-main {
-        display: flex;
-        flex-direction: row-reverse;
-        margin: 1rem;
-    }
-
-    .main-contents {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        width: 25%;
-    }
-
-    .dash-footer {
-        display: flex;
-        justify-content: flex-end;
-        margin: 1rem;
-    }
-</style>

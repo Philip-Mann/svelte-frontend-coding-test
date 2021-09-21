@@ -1,0 +1,24 @@
+header {
+    height: 100px;
+    background-color: #10ade5;
+    background-image:
+    linear-gradient(
+        #b7e6f7, #10ade5
+    );
+}
+
+.header-contents {
+    align-items: center;
+    height: 100%;
+    display: flex;
+}
+
+.header-inner {
+    display: flex;
+    width: 300px;
+    justify-content: space-evenly;
+}
+
+.header-contents h1 {
+    color: white;
+}
